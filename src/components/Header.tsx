@@ -1,24 +1,20 @@
-import { CartItem, GuitarI } from "../interfaces/interfaces";
+import { Dispatch, useMemo } from "react";
+import { CartItem } from "../interfaces/interfaces";
+import { CartActions } from "../reducers/cart-reducer";
 
 interface Props {
   cart: CartItem[];
-  isNotEmpty: boolean;
-  cartTotal: number;
-  removeFromCart: (id: GuitarI["id"]) => void;
-  increaseQuantity: (id: GuitarI["id"]) => void;
-  decreaseQuantity: (id: GuitarI["id"]) => void;
-  clearCart: () => void;
+  dispatch: Dispatch<CartActions>;
 }
 
-export const Header = ({
-  cart,
-  removeFromCart,
-  increaseQuantity,
-  decreaseQuantity,
-  clearCart,
-  isNotEmpty,
-  cartTotal,
-}: Props) => {
+export const Header = ({ cart, dispatch }: Props) => {
+  // State Derivado
+  const isNotEmpty = useMemo(() => cart.length > 0, [cart]);
+  const cartTotal = useMemo(
+    () => cart.reduce((total, item) => total + item.quantity * item.price, 0),
+    [cart]
+  );
+
   return (
     <header className="py-5 header">
       <div className="container-xl">
@@ -70,7 +66,12 @@ export const Header = ({
                               <button
                                 type="button"
                                 className="btn btn-dark"
-                                onClick={() => decreaseQuantity(guitar.id)}
+                                onClick={() =>
+                                  dispatch({
+                                    type: "decrease-quantity",
+                                    payload: { id: guitar.id },
+                                  })
+                                }
                               >
                                 -
                               </button>
@@ -78,7 +79,12 @@ export const Header = ({
                               <button
                                 type="button"
                                 className="btn btn-dark"
-                                onClick={() => increaseQuantity(guitar.id)}
+                                onClick={() =>
+                                  dispatch({
+                                    type: "increase-quantity",
+                                    payload: { id: guitar.id },
+                                  })
+                                }
                               >
                                 +
                               </button>
@@ -87,7 +93,12 @@ export const Header = ({
                               <button
                                 className="btn btn-danger"
                                 type="button"
-                                onClick={() => removeFromCart(guitar.id)}
+                                onClick={() =>
+                                  dispatch({
+                                    type: "remove-from-cart",
+                                    payload: { id: guitar.id },
+                                  })
+                                }
                               >
                                 X
                               </button>
@@ -107,7 +118,11 @@ export const Header = ({
 
                 <button
                   className="btn btn-dark w-100 mt-3 p-2"
-                  onClick={clearCart}
+                  onClick={() =>
+                    dispatch({
+                      type: "clear-cart",
+                    })
+                  }
                 >
                   Vaciar Carrito
                 </button>
